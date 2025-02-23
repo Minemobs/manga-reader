@@ -1,16 +1,25 @@
 ---
+import "../styles/global.css";
+import Reader from "../components/reader.astro";
 
+const corsProxyURL = process.env.CORS_PROXY_URL!!;
 ---
 
 <html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <meta id="run-mode" name="dev-mode" content={import.meta.env.DEV + ""} />
+    <title>Astro</title>
+  </head>
+  <body data-proxy-url={corsProxyURL} class="grid grid-flow-row max-h-dvh">
+    <header class="text-center h-min py-5">
+      MangaTrad Reader 
+    </header>
+    <div class="flex flex-col items-center justify-center max-h-dvh">
+      <Reader baseSrc="https://shonenjumpplus.com/episode/10833497643049550167" baseCleanedSrc="/chapter-clean/" basePatchedSrc="/chapter-patch/" numberOfPages="35" width="764" height="1200" />
+    </div>
+  </body>
 </html>
