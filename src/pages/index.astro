@@ -2,7 +2,7 @@
 import "../styles/global.css";
 import Reader from "../components/reader.astro";
 
-const corsProxyURL = process.env.CORS_PROXY_URL!!;
+const corsProxyURL = import.meta.env.CORS_PROXY_URL!!;
 ---
 
 <html lang="en">
