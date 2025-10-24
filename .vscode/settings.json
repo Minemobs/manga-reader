@@ -1,0 +1,16 @@
+{
+    "dbcode.connections": [
+        {
+            "connectionId": "khN8x3m-IpSg7Mk3kLXMe",
+            "name": "MangaReader AstroDB",
+            "driver": "sqlite",
+            "connectionType": "socket",
+            "socket": "manga-reader/.astro/content.db",
+            "readOnly": false,
+            "driverOptions": {
+                "extensions": []
+            },
+            "idleTimeout": 0
+        }
+    ]
+}

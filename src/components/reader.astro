@@ -1,105 +1,172 @@
 ---
-import { Icon } from 'astro-icon/components'
-const { baseSrc, baseCleanedSrc, basePatchedSrc, numberOfPages, width, height } = Astro.props;
-const dummyArray = Array.from({length: Number(numberOfPages)});
+import { Icon } from "astro-icon/components";
+import { getPagesFromWebsite } from "../lib/parser.ts";
+const {
+  baseSrc,
+  baseCleanedSrc,
+  basePatchedSrc,
+  numberOfPages,
+  width,
+  height,
+} = Astro.props;
 
-
-const jsonRegex = /episode-json.+ data-value='(.+)'>/gm;
-const json = JSON.parse(await fetch(baseSrc, { headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:137.0) Gecko/20100101 Firefox/137.0" } })
-  .then(it => it.text()).then(it => it.match(jsonRegex)?.at(0)?.split("'").at(-2)?.replaceAll("&quot;", '"')!!));
-const pages = json["readableProduct"]["pageStructure"]["pages"] as Array<{ src: string } & Record<string, unknown>>;
-//Join all the pages into a single string separated by a comma
-const pagesSrc = pages.filter(it => it.src !== undefined).map(it => it.src).join(",");
+const pagesSrc = await getPagesFromWebsite(baseSrc);
+const jsonSrc: string[] = JSON.parse(pagesSrc!);
+const dummyArray = Array.from({ length: jsonSrc.length });
 ---
 
 <div class="relative w-min h-min max-h-full">
-  <canvas id="canvas-reader" class="max-h-full w-auto max-sm:w-dvw max-sm:h-auto" style={"height: " + height / 1.5 + "px;"} width={width} height={height} attr-src={pagesSrc} attr-src-cleaned={baseCleanedSrc} attr-nbr-of-pages={numberOfPages} attr-src-patched={basePatchedSrc}></canvas>
+  <canvas
+    id="canvas-reader"
+    class="max-h-full w-auto max-sm:w-dvw max-sm:h-auto"
+    style={"height: " + height / 1.5 + "px;"}
+    width={width}
+    height={height}
+    attr-src={pagesSrc}
+    attr-src-cleaned={baseCleanedSrc}
+    attr-nbr-of-pages={numberOfPages}
+    attr-src-patched={basePatchedSrc}></canvas>
   <div class="absolute top-0 min-h-full w-full text-amber-300 group">
-    <div class="group-hover:visible md:invisible absolute top-0 left-0 w-[15%] min-h-full bg-gray-800/25" id="prev"> <Icon color="orange" name="ri:arrow-left-wide-fill" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-7xl"/></div>
-    <div class="group-hover:visible md:invisible absolute top-0 right-0 w-[15%] min-h-full bg-gray-800/25" id="next"><Icon color="orange" name="ri:arrow-right-wide-fill" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-7xl"/></div>
-    <div class="group-hover:visible md:invisible absolute bottom-0 min-w-[70%] max-w-[70%] left-[15%] bg-gray-800/25 h-min">
-      <div class="mb-5 mx-3 pt-3 flex flex-row items-center justify-center" id="counter">
-        {dummyArray.map((_, index) => <Icon name="ri:checkbox-blank-circle-fill" width="24" height="8" style={"color: " + (index === 0 ? "red" : "white")}></Icon>)}        
+    <div
+      class="group-hover:visible md:invisible absolute top-0 left-0 w-[15%] min-h-full bg-gray-800/25"
+      id="prev"
+    >
+      <Icon
+        color="orange"
+        name="ri:arrow-left-wide-fill"
+        class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-7xl"
+      />
+    </div>
+    <div
+      class="group-hover:visible md:invisible absolute top-0 right-0 w-[15%] min-h-full bg-gray-800/25"
+      id="next"
+    >
+      <Icon
+        color="orange"
+        name="ri:arrow-right-wide-fill"
+        class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-7xl"
+      />
+    </div>
+    <div
+      class="group-hover:visible md:invisible absolute bottom-0 min-w-[70%] max-w-[70%] left-[15%] bg-gray-800/25 h-min"
+    >
+      <div
+        class="mb-2 mx-3 pt-3 flex flex-col items-center justify-center"
+        id="counter"
+      >
+      <span>1/0</span>
+      <div class="flex flex-row pt-3 items-center justify-center mx-3 w-full">
+        {
+          dummyArray.map((_, index) => (
+            <Icon
+              name="ri:checkbox-blank-circle-fill"
+              width="24"
+              height="8"
+              style={"color: " + (index === 0 ? "red" : "white")}
+            />
+          ))
+        }
+      </div>
       </div>
     </div>
   </div>
 </div>
 
 <script>
-  const proxyURL = document.body.getAttribute("data-proxy-url")!!;
+  import { unscramble } from "../scripts/unscramble";
+  const proxyURL = document.body.getAttribute("data-proxy-url")!;
   const canvas = document.getElementById("canvas-reader") as HTMLCanvasElement;
   const counterDiv = document.getElementById("counter");
-  const baseSrcs = canvas.getAttribute("attr-src")?.split(",");
-  const baseCleanedSrc = canvas.getAttribute("attr-src-cleaned")!!;
-  const basePatchedSrc = canvas.getAttribute("attr-src-patched")!!;
-  const numberOfPages = Number(canvas.getAttribute("attr-nbr-of-pages")!!);
+  const counterDivChildren = counterDiv!.children;
+  const baseSrcs = JSON.parse(canvas.getAttribute("attr-src")!);
+  const baseCleanedSrc = canvas.getAttribute("attr-src-cleaned")!;
+  const basePatchedSrc = canvas.getAttribute("attr-src-patched")!;
+  const numberOfPages = Number(canvas.getAttribute("attr-nbr-of-pages")!);
   const { width, height } = canvas;
   const ctx = canvas.getContext("2d");
-  ctx!!.imageSmoothingEnabled = false;
-  const isDev = document.getElementById("run-mode")!!.getAttribute("content") === "true";
+  ctx!.imageSmoothingEnabled = false;
+  const isDev = document.getElementById("run-mode")!.getAttribute("content") === "true";
 
-  const DIVIDE_NUM = 4;
-  const MULTIPLE = 8;
   let index = 0;
 
-  function unscramble(image: ImageBitmap) {
-    const cellWidth = Math.floor(width / (DIVIDE_NUM * MULTIPLE)) * MULTIPLE;
-    const cellHeight = Math.floor(height / (DIVIDE_NUM * MULTIPLE)) * MULTIPLE;
-    ctx!!.drawImage(image, 0, 0, width, height);
-
-    for (let i = 0; i < DIVIDE_NUM**2; i++) {
-      const sourceX = i % DIVIDE_NUM * cellWidth;
-      const sourceY = Math.floor(i / DIVIDE_NUM) * cellHeight;
-      const destinationIndex = i % DIVIDE_NUM * DIVIDE_NUM + Math.floor(i / DIVIDE_NUM);
-      const destinationX = destinationIndex % DIVIDE_NUM * cellWidth;
-      const destinationY = Math.floor(destinationIndex / DIVIDE_NUM) * cellHeight;
-      ctx!!.drawImage(image, sourceX, sourceY, cellWidth, cellHeight, destinationX, destinationY, cellWidth, cellHeight);
-    }
-  }
-  
-  async function drawLayers(remoteFmt: string, localFmt: string, options: ImageBitmapOptions) {
+  async function drawLayers(
+    remoteFmt: string,
+    localFmt: string,
+    options: ImageBitmapOptions,
+  ) {
     let promiseIndex = 0;
-    return Promise.allSettled(
-      [
-        fetch(proxyURL + remoteFmt).then(it => it.blob()).then(it => createImageBitmap(it, options)),
-        fetch(baseCleanedSrc + localFmt, { signal: isDev ? AbortSignal.timeout(500) : undefined }).then(it => it.blob()).then(it => createImageBitmap(it, options)),
-        fetch(basePatchedSrc + localFmt, { signal: isDev ? AbortSignal.timeout(500) : undefined }).then(it => it.blob()).then(it => createImageBitmap(it, options)) ]
-    ).then(results => results.filter(it => it.status === "fulfilled").forEach(it => {
-      if(promiseIndex++ === 0) {
-        return unscramble(it.value);
-      }
-      ctx!!.drawImage(it.value, 0, 0, width, height);
-    }));
+    return Promise.allSettled([
+      fetch(proxyURL + remoteFmt)
+        .then((it) => it.blob())
+        .then((it) => createImageBitmap(it, options)),
+      fetch(baseCleanedSrc + localFmt, {
+        signal: isDev ? AbortSignal.timeout(500) : undefined,
+      })
+        .then((it) => it.blob())
+        .then((it) => createImageBitmap(it, options)),
+      fetch(basePatchedSrc + localFmt, {
+        signal: isDev ? AbortSignal.timeout(500) : undefined,
+      })
+        .then((it) => it.blob())
+        .then((it) => createImageBitmap(it, options)),
+    ]).then((results) =>
+      results
+        .filter((it) => it.status === "fulfilled")
+        .forEach((it) => {
+          if (promiseIndex++ === 0) {
+            return unscramble(baseSrcs![0]!, width, height, ctx!, it.value);
+          }
+          ctx!.drawImage(it.value, 0, 0, width, height);
+        }),
+    );
   }
 
   async function initCanvas() {
     if (!!!ctx) {
-      alert("Canvas are not supported on your browser, please use a different one.");
-      return;
-    }
-    if(!!!baseSrcs) {
+      alert(
+        "Canvas are not supported on your browser, please use a different one.",
+      );
       return;
     }
 
-    await drawLayers(`${baseSrcs[index]}`, `${index + 1}.png`, { resizeHeight: height, resizeWidth: width, resizeQuality: "high" });
+    if (!!!baseSrcs) {
+      return;
+    }
+
+    counterDivChildren[0].textContent = `1/${numberOfPages}`;
+
+    for(let i = index; i < numberOfPages; i++) {
+      fetch(baseSrcs[i]);
+    }
+    
+    await drawLayers(`${baseSrcs[index]}`, `${index + 1}.png`, {
+      resizeHeight: height,
+      resizeWidth: width,
+      resizeQuality: "high",
+    });
   }
 
   function nextPage(increment: number) {
-    if(!!!ctx) return;
-    if(!!!baseSrcs) return;
-    counterDiv!!.children[index]!!.setAttribute("style", "color: white");
-    index = ((index + increment) % numberOfPages + numberOfPages) % numberOfPages;
-    counterDiv!!.children[index]!!.setAttribute("style", "color: red");
+    if (!!!ctx) return;
+    if (!!!baseSrcs) return;
+    counterDivChildren[1].children[index]!.setAttribute("style", "color: white");
+    index = (((index + increment) % numberOfPages) + numberOfPages) % numberOfPages;
+    counterDivChildren[1].children[index]!.setAttribute("style", "color: red");
     ctx.clearRect(0, 0, width, height);
 
-    drawLayers(`${baseSrcs[index]}`, `${index + 1}.png`, { resizeHeight: height, resizeWidth: width, resizeQuality: "high" }).then(it => {
-      ctx.fillStyle = "red";
-      ctx.fillText(`${index + 1} / ${numberOfPages}`, width / 2, height - 10);
+    drawLayers(`${baseSrcs[index]}`, `${index + 1}.png`, {
+      resizeHeight: height,
+      resizeWidth: width,
+      resizeQuality: "high",
+    }).then((it) => {
+      counterDivChildren[0].textContent = `${index}/${numberOfPages}`;
     });
   }
 
   await initCanvas();
 
   document.getElementById("next")?.addEventListener("click", () => nextPage(1));
-  document.getElementById("prev")?.addEventListener("click", () => nextPage(-1));
+  document
+    .getElementById("prev")
+    ?.addEventListener("click", () => nextPage(-1));
 </script>

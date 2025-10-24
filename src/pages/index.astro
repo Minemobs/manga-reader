@@ -1,8 +1,16 @@
 ---
 import "../styles/global.css";
 import Reader from "../components/reader.astro";
+import { db } from "astro:db";
+import { Manga } from "astro:db";
+import { Icon } from "astro-icon/components";
 
-const corsProxyURL = import.meta.env.CORS_PROXY_URL!!;
+const corsProxyURL: string = import.meta.env.CORS_PROXY_URL!;
+const latestMangaUpdated = await db
+  .select()
+  .from(Manga)
+  .limit(30)
+  .orderBy(Manga.updated);
 ---
 
 <html lang="en">
@@ -14,12 +22,66 @@ const corsProxyURL = import.meta.env.CORS_PROXY_URL!!;
     <meta id="run-mode" name="dev-mode" content={import.meta.env.DEV + ""} />
     <title>Astro</title>
   </head>
-  <body data-proxy-url={corsProxyURL} class="grid grid-flow-row max-h-dvh">
-    <header class="text-center h-min py-5">
-      MangaTrad Reader 
-    </header>
-    <div class="flex flex-col items-center justify-center max-h-dvh">
-      <Reader baseSrc="https://shonenjumpplus.com/episode/10833497643049550167" baseCleanedSrc="/chapter-clean/" basePatchedSrc="/chapter-patch/" numberOfPages="35" width="764" height="1200" />
+  <body
+    data-proxy-url={corsProxyURL}
+    class="max-w-dvw bg-ctp-base text-ctp-mauve min-h-dvh"
+  >
+    <div class="grow">
+      <header
+        id="header"
+        class="text-center h-min bg-ctp-surface0 text-ctp-mauve mb-5 align-middle items-center grid grid-flow-col"
+      >
+        <div></div>
+        <div class="py-5 mx-auto select-none">MangaTrad Reader</div>
+        <div class="justify-self-end"></div>
+        <div class="absolute right-5 px-1 py-1 rounded-2xl not-hover:invisible hover:bg-ctp-crust transition-all focus-within:bg-ctp-crust focus-within:outline-2 focus-within:outline-ctp-mauve">
+          <form id="searchForm" class="flex flex-row">
+            <input class="w-min outline-none" type="text" id="searchInput" name="searchInput" required>
+            <button class="cursor-pointer">
+              <Icon name="ri:search-line" class="visible"></Icon>
+            </button>
+          </form>
+        </div>
+      </header>
+      <!-- <Reader
+        baseSrc="https://shonenjumpplus.com/episode/10833497643049550167"
+        baseCleanedSrc="/chapter-clean/"
+        basePatchedSrc="/chapter-patch/"
+        numberOfPages="35"
+        width="764"
+        height="1200"
+      /> -->
+      <div class="mx-12 md:mx-32 grid grid-flow-row text-ctp-text">
+        <div class="flex flex-col items-center">
+          <h2 class="text-2xl">Latest manga</h2>
+          <div class="grid grid-flow-col w-5 gap-5 overflow-auto min-w-full justify-start">
+            {
+              latestMangaUpdated.map(({ cover, title, id }) => (
+                <div class="w-32 md:w-52 rounded-md flex flex-col align-middle items-center">
+                  <img class="p-2 pb-2" src={cover} />
+                  <i class="text-center">{title}</i>
+                </div>
+                <div class="w-32 md:w-52 rounded-md flex flex-col align-middle items-center">
+                  <img class="p-2 pb-2" src={cover} />
+                  <i class="text-center">{title}</i>
+                </div>
+              ))
+            }
+          </div>
+        </div>
+      </div>
     </div>
   </body>
 </html>
+
+<script>
+  const [searchForm, searchInput] = [
+    document.getElementById("searchForm")!,
+    document.getElementById("searchInput") as HTMLInputElement
+  ];
+
+  searchForm.addEventListener("submit", (event: SubmitEvent) => {
+    event.preventDefault();
+    console.log(searchInput.value);
+  })
+</script>
