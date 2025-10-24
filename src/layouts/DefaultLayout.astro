@@ -1,0 +1,25 @@
+---
+import Header from "../components/Header.astro";
+
+const corsProxyURL: string = import.meta.env.CORS_PROXY_URL!;
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <meta id="run-mode" name="dev-mode" content={import.meta.env.DEV + ""} />
+    <title>Astro</title>
+  </head>
+  <body
+    data-proxy-url={corsProxyURL}
+    class="max-w-dvw bg-ctp-base text-ctp-mauve min-h-dvh"
+  >
+    <div class="relative">
+      <Header />
+    </div>
+    <slot/>
+  </body>
+</html>

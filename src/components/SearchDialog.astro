@@ -1,0 +1,74 @@
+---
+import { Icon } from "astro-icon/components";
+---
+
+<dialog
+  closedby="any"
+  id="searchDialog"
+  class="not-open:hidden fixed w-dvw h-full top-0 left-0 flex items-center justify-center bg-ctp-crust/40 text-ctp-mauve"
+>
+  <div class="h-[90%] w-min bg-ctp-crust/70 p-3 rounded-xl">
+    <form
+      id="searchForm"
+      class="flex gap-3 flex-row outline-2 outline-ctp-mauve p-2 rounded-sm mb-5"
+    >
+      <input
+        class="w-min outline-none"
+        type="text"
+        id="searchInput"
+        name="searchInput"
+        required
+      />
+      <button class="cursor-pointer">
+        <Icon name="ri:search-line" />
+      </button>
+    </form>
+    <div id="searchResult" class="grid grid-flow-row gap-3"></div>
+  </div>
+</dialog>
+
+<script>
+  const [searchForm, searchInput, searchResult] = [
+    document.getElementById("searchForm")!,
+    document.getElementById("searchInput") as HTMLInputElement,
+    document.getElementById("searchResult")!,
+  ];
+
+  searchForm.addEventListener("submit", (ev) => searchManga(ev));
+  searchInput.addEventListener("input", (ev) => searchManga(ev as InputEvent));
+
+  async function searchManga(event: SubmitEvent | InputEvent) {
+    event.preventDefault();
+    const formData = new FormData(searchForm as HTMLFormElement);
+    await fetch("/api/search", {
+      method: "POST",
+      body: formData,
+    })
+      .then((it) => it.json())
+      .then((it) => {
+        console.log(it);
+        while (searchResult.lastElementChild) {
+          searchResult.removeChild(searchResult.lastElementChild);
+        }
+        for (let i = 0; i < it.length; i++) {
+          const manga = it[i]!;
+          const div = document.createElement("div");
+          "grid grid-flow-col gap-3 bg-ctp-surface0/70 p-3 rounded-lg"
+            .split(" ")
+            .forEach((it) => div.classList.add(it));
+          const img = document.createElement("img");
+          "h-12 aspect-square"
+            .split(" ")
+            .forEach((it) => img.classList.add(it));
+          const title = document.createElement("i");
+          "text-center self-center text-xl"
+            .split(" ")
+            .forEach((it) => title.classList.add(it));
+          title.textContent = manga.title;
+          img.src = manga.cover;
+          div.append(img, title);
+          searchResult.appendChild(div);
+        }
+      });
+  }
+</script>

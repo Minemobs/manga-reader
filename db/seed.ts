@@ -14,8 +14,15 @@ export default async function seed() {
         cover: "https://meo.comick.pictures/WN1Rq.jpg"
       },
       {
-        title: "4 Days of Happiness",
+        title: "Osananananajimi",
         id: 1,
+        alternativeTitles: ["おさななななじみ"],
+        chapters: "[0]",
+        cover: "https://public.ynjn.jp/key_visual/3686/keyvisual_osanananajimi.png"
+      },
+      {
+        title: "4 Days of Happiness",
+        id: 2,
         alternativeTitles:
           '["Le prix du reste de ma vie", "Jumyou wo Kaitotte Moratta. Ichinen ni Tsuki, Ichimanen de."]',
         chapters: "[0]",

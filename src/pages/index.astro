@@ -1,11 +1,10 @@
 ---
 import "../styles/global.css";
-import Reader from "../components/reader.astro";
 import { db } from "astro:db";
 import { Manga } from "astro:db";
-import { Icon } from "astro-icon/components";
+import SearchDialog from "../components/SearchDialog.astro";
+import DefaultLayout from "../layouts/DefaultLayout.astro";
 
-const corsProxyURL: string = import.meta.env.CORS_PROXY_URL!;
 const latestMangaUpdated = await db
   .select()
   .from(Manga)
@@ -13,117 +12,31 @@ const latestMangaUpdated = await db
   .orderBy(Manga.updated);
 ---
 
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width" />
-    <meta name="generator" content={Astro.generator} />
-    <meta id="run-mode" name="dev-mode" content={import.meta.env.DEV + ""} />
-    <title>Astro</title>
-  </head>
-  <body
-    data-proxy-url={corsProxyURL}
-    class="max-w-dvw bg-ctp-base text-ctp-mauve min-h-dvh"
-  >
-    <div class="relative">
-      <header
-        id="header"
-        class="text-center fixed top-0 h-min w-dvw bg-ctp-surface0/75 text-ctp-mauve mb-5 align-middle items-center grid grid-flow-col"
+<DefaultLayout>
+  <SearchDialog />
+  <div class="mx-12 md:mx-32 grid grid-flow-row text-ctp-text mt-28">
+    <div class="flex flex-col items-center">
+      <h2 class="text-2xl">Latest manga</h2>
+      <div
+        class="grid grid-flow-col w-5 gap-5 overflow-auto min-w-full justify-start"
       >
-        <div></div>
-        <div class="py-5 mx-auto select-none">MangaTrad Reader</div>
-        <div class="justify-self-end"></div>
-        <div id="searchmenu-toggle" class="absolute right-5 px-1 py-1 rounded-2xl not-hover:invisible hover:bg-ctp-crust transition-all focus-within:bg-ctp-crust focus-within:outline-2 focus-within:outline-ctp-mauve">
-          
-          <Icon name="ri:search-line" class="visible"></Icon>
-        </div>
-      </header>
-      <!-- <Reader
-        baseSrc="https://shonenjumpplus.com/episode/10833497643049550167"
-        baseCleanedSrc="/chapter-clean/"
-        basePatchedSrc="/chapter-patch/"
-        numberOfPages="35"
-        width="764"
-        height="1200"
-      /> -->
-      <dialog closedby="any" id="searchDialog" class="not-open:hidden fixed w-dvw h-full bottom-0 left-0 flex items-center justify-center bg-ctp-crust/40 text-ctp-mauve">
-        <div class="mt-20 h-full w-min">
-        <form id="searchForm" class="flex gap-3 flex-row outline-2 outline-ctp-mauve p-2 rounded-sm mb-5">
-          <input class="w-min outline-none" type="text" id="searchInput" name="searchInput" required>
-          <button class="cursor-pointer">
-            <Icon name="ri:search-line"></Icon>
-          </button>
-        </form>
-        <div id="searchResult" class="grid grid-flow-row gap-3">
-        </div>
-      </div>
-      </dialog>
-      <div class="mx-12 md:mx-32 grid grid-flow-row text-ctp-text mt-28">
-        <div class="flex flex-col items-center">
-          <h2 class="text-2xl">Latest manga</h2>
-          <div class="grid grid-flow-col w-5 gap-5 overflow-auto min-w-full justify-start">
-            {
-              latestMangaUpdated.map(({ cover, title, id }) => (
-                <div class="w-32 md:w-52 rounded-md flex flex-col align-middle items-center">
-                  <img class="p-2 pb-2" src={cover} />
-                  <i class="text-center">{title}</i>
-                </div>
-                <div class="w-32 md:w-52 rounded-md flex flex-col align-middle items-center">
-                  <img class="p-2 pb-2" src={cover} />
-                  <i class="text-center">{title}</i>
-                </div>
-              ))
-            }
-          </div>
-        </div>
+      {
+        latestMangaUpdated.map(({ cover, title, id }) => (
+          <a href={`manga/${id}`}>
+            <div class="w-32 md:w-52 rounded-md flex flex-col align-middle items-center select-none">
+              <img class="p-2 pb-2 h-48 md:h-80 object-cover" src={cover} />
+              <i class="text-center">{title}</i>
+            </div>
+          </a>
+          <a href={`manga/${id}`}>
+            <div class="w-32 md:w-52 rounded-md flex flex-col align-middle items-center select-none">
+              <img class="p-2 pb-2 h-48 md:h-80 object-cover" src={cover} />
+              <i class="text-center">{title}</i>
+            </div>
+          </a>
+        ))
+      }
       </div>
     </div>
-  </body>
-</html>
-
-<script>
-  const [searchForm, searchInput, searchMenuToggle, searchResult, searchDialog] = [
-    document.getElementById("searchForm")!,
-    document.getElementById("searchInput") as HTMLInputElement,
-    document.getElementById("searchmenu-toggle")!,
-    document.getElementById("searchResult")!,
-    document.getElementById("searchDialog")! as HTMLDialogElement,
-  ];
-
-  searchMenuToggle.addEventListener("click", ev => {
-    searchDialog.showModal();
-  });
-  
-  searchForm.addEventListener("submit", ev => searchManga(ev));
-  searchInput.addEventListener("input", ev => searchManga(ev as InputEvent));
-
-  async function searchManga(event: SubmitEvent | InputEvent) {
-    event.preventDefault();
-    const formData = new FormData(searchForm as HTMLFormElement);
-    await fetch("/api/search", {
-      method: "POST",
-      body: formData
-    }).then(it => it.json())
-      .then(it => {
-        console.log(it);
-        while (searchResult.lastElementChild) {
-          searchResult.removeChild(searchResult.lastElementChild);
-        }
-        for(let i = 0; i < it.length; i++) {
-          const manga = it[i]!;
-          const div = document.createElement("div");
-          "grid grid-flow-col gap-3 bg-ctp-surface0/70 p-3 rounded-lg".split(" ").forEach(it => div.classList.add(it));
-          const img = document.createElement("img");
-          "h-12 aspect-square".split(" ").forEach(it => img.classList.add(it));
-          const title = document.createElement("i");
-          "text-center self-center".split(" ").forEach(it => title.classList.add(it));
-          title.textContent = manga.title;
-          img.src = manga.cover;
-          div.append(img, title);
-          searchResult.appendChild(div);
-        }
-      }
-    );
-  }
-</script>
+  </div>
+</DefaultLayout>
