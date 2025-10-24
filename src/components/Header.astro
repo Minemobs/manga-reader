@@ -22,7 +22,7 @@ import { Icon } from "astro-icon/components";
     document.getElementById("searchmenu-toggle")!,
     document.getElementById("searchDialog") as HTMLDialogElement,
   ];
-  searchMenuToggle.addEventListener("click", (ev) => {
+  searchMenuToggle.addEventListener("click", () => {
     searchDialog.open = true;
   });
 </script>

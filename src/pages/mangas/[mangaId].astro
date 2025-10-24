@@ -3,9 +3,9 @@ import { eq } from "astro:db";
 import { Manga } from "astro:db";
 import { db } from "astro:db";
 import DefaultLayout from "../../layouts/DefaultLayout.astro";
+import Reader from "../../components/reader.astro";
 
 export const prerender = false;
-console.log(Astro.params);
 const { mangaId } = Astro.params;
 const { id, title, alternativeTitles, chapters, cover, updated } = await db.select().from(Manga).where(eq(Manga.id, Number(mangaId))).then(it => it[0]);
 ---
@@ -13,6 +13,6 @@ const { id, title, alternativeTitles, chapters, cover, updated } = await db.sele
 <DefaultLayout>
     <h2 class="text-2xl text-center">{title}</h2>
     <div class="grid">
-
+        <Reader baseSrc="https://ynjn.jp/viewer/23485/272748" baseCleanedSrc={`/chapter-clean/${id}/0/`} basePatchedSrc={`/chapter-patch/${id}/0/`} numberOfPages="39" width="850" height="1200"></Reader>
     </div>
 </DefaultLayout>

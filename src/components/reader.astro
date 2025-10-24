@@ -136,7 +136,7 @@ const dummyArray = Array.from({ length: jsonSrc.length });
     counterDivChildren[0].textContent = `1/${numberOfPages}`;
 
     for(let i = index; i < numberOfPages; i++) {
-      fetch(baseSrcs[i]);
+      fetch(proxyURL + baseSrcs[i]);
     }
     
     await drawLayers(`${baseSrcs[index]}`, `${index + 1}.png`, {
@@ -158,7 +158,7 @@ const dummyArray = Array.from({ length: jsonSrc.length });
       resizeHeight: height,
       resizeWidth: width,
       resizeQuality: "high",
-    }).then((it) => {
+    }).then(() => {
       counterDivChildren[0].textContent = `${index}/${numberOfPages}`;
     });
   }

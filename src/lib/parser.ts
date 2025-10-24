@@ -42,6 +42,17 @@ function scrape(srcURL: URL, rawSrc: string): Promise<string> | undefined {
           JSON.stringify(json.filter((it) => it.src !== undefined).map((it) => it.src)),
         );
     }
+    case "ynjn.jp": {
+      const paths = srcURL.pathname.split("/");
+      const chapterID = paths.at(3);
+      const mangaID = paths.at(2);
+      return fetch(`https://webapi.ynjn.jp/viewer?titleId=${mangaID}&episodeId=${chapterID}&viewerOnly=0`)
+        .then(it => it.json())
+        .then((json: any) => json.data.pages
+          .filter((it: any) => it.manga_page?.page_image_url !== undefined)
+          .map((it: any) => it.manga_page.page_image_url as string) as string[])
+        .then(it => JSON.stringify(it));
+    }
     default:
       return undefined;
   }
