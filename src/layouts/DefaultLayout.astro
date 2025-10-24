@@ -1,5 +1,7 @@
 ---
+import "../styles/global.css";
 import Header from "../components/Header.astro";
+import SearchDialog from "../components/SearchDialog.astro";
 
 const corsProxyURL: string = import.meta.env.CORS_PROXY_URL!;
 ---
@@ -20,6 +22,9 @@ const corsProxyURL: string = import.meta.env.CORS_PROXY_URL!;
     <div class="relative">
       <Header />
     </div>
-    <slot/>
+    <SearchDialog />
+    <div class="mx-12 md:mx-32 grid grid-flow-row text-ctp-text mt-28">
+      <slot/>
+    </div>
   </body>
 </html>

@@ -52,6 +52,8 @@ import { Icon } from "astro-icon/components";
         }
         for (let i = 0; i < it.length; i++) {
           const manga = it[i]!;
+          const a = document.createElement("a");
+          a.href = "/mangas/" + manga.id;
           const div = document.createElement("div");
           "grid grid-flow-col gap-3 bg-ctp-surface0/70 p-3 rounded-lg"
             .split(" ")
@@ -67,7 +69,8 @@ import { Icon } from "astro-icon/components";
           title.textContent = manga.title;
           img.src = manga.cover;
           div.append(img, title);
-          searchResult.appendChild(div);
+          a.appendChild(div);
+          searchResult.appendChild(a);
         }
       });
   }
