@@ -4,12 +4,15 @@ import { column, defineDb, defineTable, NOW } from "astro:db";
 
 const Chapter = defineTable({
   columns: {
-    id: column.number({ unique: true, primaryKey: true }),
+    id: column.number(),
     sourceURL: column.text({ unique: true }),
     pagesNumber: column.number(),
     pagesURLs: column.json(), // an array of URLs
     mangaId: column.number({ references: () => Manga.columns.id }),
   },
+  indexes: [
+    { on: ["id", "mangaId"], unique: true }, //idk if it's always unique or not
+  ]
 });
 
 const Manga = defineTable({

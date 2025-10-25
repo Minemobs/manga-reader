@@ -4,15 +4,23 @@ import { Manga } from "astro:db";
 import { db } from "astro:db";
 import DefaultLayout from "../../layouts/DefaultLayout.astro";
 import Reader from "../../components/reader.astro";
+import { Chapter } from "astro:db";
+import { and } from "astro:db";
 
 export const prerender = false;
 const { mangaId } = Astro.params;
-const { id, title, alternativeTitles, chapters, cover, updated } = await db.select().from(Manga).where(eq(Manga.id, Number(mangaId))).then(it => it[0]);
+const { id, title, alternativeTitles, chapters: chaptersAsRawString, cover, updated } = await db.select().from(Manga).where(eq(Manga.id, Number(mangaId))).then(it => it[0]);
+const chaptersIds: number[] = JSON.parse(chaptersAsRawString as string);
+console.log(chaptersIds);
+const firstChapterId = chaptersIds[0];
+const firstChapter = await db.select().from(Chapter).where(and(eq(Chapter.id, firstChapterId), eq(Chapter.mangaId, id))).then(it => it[0]);
 ---
 
 <DefaultLayout>
     <h2 class="text-2xl text-center">{title}</h2>
     <div class="grid">
-        <Reader baseSrc="https://ynjn.jp/viewer/23485/272748" baseCleanedSrc={`/chapter-clean/${id}/0/`} basePatchedSrc={`/chapter-patch/${id}/0/`} numberOfPages="39" width="850" height="1200"></Reader>
+        {
+            firstChapter !== undefined && <Reader baseSrc={firstChapter.sourceURL} baseCleanedSrc={`/chapter-clean/${id}/0/`} basePatchedSrc={`/chapter-patch/${id}/0/`} numberOfPages="39" width="850" height="1200"></Reader>
+        }
     </div>
 </DefaultLayout>

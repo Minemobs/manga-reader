@@ -98,23 +98,23 @@ const dummyArray = Array.from({ length: jsonSrc.length });
     return Promise.allSettled([
       fetch(proxyURL + remoteFmt)
         .then((it) => it.blob())
-        .then((it) => createImageBitmap(it, options)),
-      fetch(baseCleanedSrc + localFmt, {
+        .then((it) => createImageBitmap(it)),
+      
+        fetch(baseCleanedSrc + localFmt, {
         signal: isDev ? AbortSignal.timeout(500) : undefined,
-      })
-        .then((it) => it.blob())
+      }).then((it) => it.blob())
         .then((it) => createImageBitmap(it, options)),
+      
       fetch(basePatchedSrc + localFmt, {
         signal: isDev ? AbortSignal.timeout(500) : undefined,
-      })
-        .then((it) => it.blob())
+      }).then((it) => it.blob())
         .then((it) => createImageBitmap(it, options)),
     ]).then((results) =>
       results
         .filter((it) => it.status === "fulfilled")
         .forEach((it) => {
           if (promiseIndex++ === 0) {
-            return unscramble(baseSrcs![0]!, width, height, ctx!, it.value);
+            return unscramble(baseSrcs![0]!, ctx!, it.value);
           }
           ctx!.drawImage(it.value, 0, 0, width, height);
         }),
@@ -146,27 +146,29 @@ const dummyArray = Array.from({ length: jsonSrc.length });
     });
   }
 
-  function nextPage(increment: number) {
+  async function nextPage(increment: number) {
     if (!!!ctx) return;
     if (!!!baseSrcs) return;
     counterDivChildren[1].children[index]!.setAttribute("style", "color: white");
+    const prevIndex = index;
     index = (((index + increment) % numberOfPages) + numberOfPages) % numberOfPages;
     counterDivChildren[1].children[index]!.setAttribute("style", "color: red");
     ctx.clearRect(0, 0, width, height);
 
-    drawLayers(`${baseSrcs[index]}`, `${index + 1}.png`, {
+    console.log(baseSrcs);
+    await drawLayers(`${baseSrcs[index]}`, `${index + 1}.png`, {
       resizeHeight: height,
       resizeWidth: width,
       resizeQuality: "high",
     }).then(() => {
-      counterDivChildren[0].textContent = `${index}/${numberOfPages}`;
+      counterDivChildren[0].textContent = `${index + 1}/${numberOfPages}`;
     });
   }
 
   await initCanvas();
 
-  document.getElementById("next")?.addEventListener("click", () => nextPage(1));
+  document.getElementById("next")?.addEventListener("click", async () => await nextPage(1));
   document
     .getElementById("prev")
-    ?.addEventListener("click", () => nextPage(-1));
+    ?.addEventListener("click", async () => await nextPage(-1));
 </script>

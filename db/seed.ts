@@ -11,7 +11,8 @@ export default async function seed() {
         alternativeTitles:
           '["Le prix du reste de ma vie", "Jumyou wo Kaitotte Moratta. Ichinen ni Tsuki, Ichimanen de."]',
         chapters: "[0]",
-        cover: "https://meo.comick.pictures/WN1Rq.jpg"
+        cover: "https://meo.comick.pictures/WN1Rq.jpg",
+        updated: new Date("2025-01-02"),
       },
       {
         title: "Osananananajimi",
@@ -26,7 +27,8 @@ export default async function seed() {
         alternativeTitles:
           '["Le prix du reste de ma vie", "Jumyou wo Kaitotte Moratta. Ichinen ni Tsuki, Ichimanen de."]',
         chapters: "[0]",
-        cover: "https://meo.comick.pictures/8Jq83.jpg"
+        cover: "https://meo.comick.pictures/8Jq83.jpg",
+        updated: new Date("2025-01-01"),
       },
     ]);
 
@@ -39,7 +41,7 @@ export default async function seed() {
       mangaId: 0
     },
     {
-      id: 1,
+      id: 0,
       sourceURL: "https://ynjn.jp/viewer/23485/272748",
       pagesNumber: 35,
       pagesURLs: '["https://public.ynjn.jp/web_page/272748/20250702123619_019.webp","https://public.ynjn.jp/web_page/272748/20250702123619_020.webp","https://public.ynjn.jp/web_page/272748/20250702123619_021.webp","https://public.ynjn.jp/web_page/272748/20250702123619_023.webp","https://public.ynjn.jp/web_page/272748/20250702123619_024.webp","https://public.ynjn.jp/web_page/272748/20250702123619_025.webp","https://public.ynjn.jp/web_page/272748/20250702123619_026.webp","https://public.ynjn.jp/web_page/272748/20250702123619_027.webp","https://public.ynjn.jp/web_page/272748/20250702123619_028.webp","https://public.ynjn.jp/web_page/272748/20250702123619_029.webp","https://public.ynjn.jp/web_page/272748/20250702123619_030.webp","https://public.ynjn.jp/web_page/272748/20250702123619_031.webp","https://public.ynjn.jp/web_page/272748/20250702123619_032.webp","https://public.ynjn.jp/web_page/272748/20250702123619_033.webp","https://public.ynjn.jp/web_page/272748/20250702123619_034.webp","https://public.ynjn.jp/web_page/272748/20250702123619_035.webp","https://public.ynjn.jp/web_page/272748/20250702123619_036.webp","https://public.ynjn.jp/web_page/272748/20250702123619_037.webp","https://public.ynjn.jp/web_page/272748/20250702123619_038.webp","https://public.ynjn.jp/web_page/272748/20250702123619_039.webp","https://public.ynjn.jp/web_page/272748/20250702123619_040.webp","https://public.ynjn.jp/web_page/272748/20250702123619_041.webp","https://public.ynjn.jp/web_page/272748/20250702123619_042.webp","https://public.ynjn.jp/web_page/272748/20250702123619_043.webp","https://public.ynjn.jp/web_page/272748/20250702123619_044.webp","https://public.ynjn.jp/web_page/272748/20250702123619_045.webp","https://public.ynjn.jp/web_page/272748/20250702123619_046.webp","https://public.ynjn.jp/web_page/272748/20250702123619_047.webp","https://public.ynjn.jp/web_page/272748/20250702123619_048.webp","https://public.ynjn.jp/web_page/272748/20250702123619_049.webp","https://public.ynjn.jp/web_page/272748/20250702123619_050.webp","https://public.ynjn.jp/web_page/272748/20250702123619_051.webp","https://public.ynjn.jp/web_page/272748/20250702123619_052.webp","https://public.ynjn.jp/web_page/272748/20250702123619_053.webp","https://public.ynjn.jp/web_page/272748/20250702123619_054.webp","https://public.ynjn.jp/web_page/272748/20250702123619_055.webp","https://public.ynjn.jp/web_page/272748/20250702123619_056.webp","https://public.ynjn.jp/web_page/272748/20250702123619_057.webp","https://public.ynjn.jp/web_page/272748/20250702123619_058.webp"]',

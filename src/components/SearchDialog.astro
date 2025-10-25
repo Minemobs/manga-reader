@@ -2,12 +2,14 @@
 import { Icon } from "astro-icon/components";
 ---
 
-<dialog
+<div class="data-closed:hidden fixed w-dvw h-full top-5 left-0 flex items-center justify-center bg-ctp-crust/40">
+  <dialog
+  open
   closedby="any"
   id="searchDialog"
-  class="not-open:hidden fixed w-dvw h-full top-0 left-0 flex items-center justify-center bg-ctp-crust/40 text-ctp-mauve"
+  class="not-open:hidden mx-auto h-[90%] bg-ctp-crust/70 rounded-xl text-ctp-mauve"
 >
-  <div class="h-[90%] w-min bg-ctp-crust/70 p-3 rounded-xl">
+  <div class="w-min p-3">
     <form
       id="searchForm"
       class="flex gap-3 flex-row outline-2 outline-ctp-mauve p-2 rounded-sm mb-5"
@@ -26,13 +28,19 @@ import { Icon } from "astro-icon/components";
     <div id="searchResult" class="grid grid-flow-row gap-3"></div>
   </div>
 </dialog>
+</div>
 
 <script>
-  const [searchForm, searchInput, searchResult] = [
+  const [searchForm, searchInput, searchResult, searchDialog] = [
     document.getElementById("searchForm")!,
     document.getElementById("searchInput") as HTMLInputElement,
     document.getElementById("searchResult")!,
+    document.getElementById("searchDialog") as HTMLDialogElement,
   ];
+
+  searchDialog.addEventListener("close", () => {
+    searchDialog.parentElement!.setAttribute("data-closed", "");
+  });
 
   searchForm.addEventListener("submit", (ev) => searchManga(ev));
   searchInput.addEventListener("input", (ev) => searchManga(ev as InputEvent));

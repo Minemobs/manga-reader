@@ -2,12 +2,13 @@
 import { db } from "astro:db";
 import { Manga } from "astro:db";
 import DefaultLayout from "../layouts/DefaultLayout.astro";
+import { desc } from "astro:db";
 
 const latestMangaUpdated = await db
   .select()
   .from(Manga)
   .limit(30)
-  .orderBy(Manga.updated);
+  .orderBy(desc(Manga.updated));
 ---
 
 <DefaultLayout>
