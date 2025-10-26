@@ -1,7 +1,19 @@
 ---
 import { Icon } from "astro-icon/components";
 import { getPagesFromWebsite } from "../lib/parser.ts";
+
+interface Props {
+  layerFormat: "svg" | "png";
+  baseSrc: string;
+  baseCleanedSrc: string;
+  basePatchedSrc: string;
+  numberOfPages: string;
+  width: string;
+  height: string;
+};
+
 const {
+  layerFormat,
   baseSrc,
   baseCleanedSrc,
   basePatchedSrc,
@@ -19,9 +31,10 @@ const dummyArray = Array.from({ length: jsonSrc.length });
   <canvas
     id="canvas-reader"
     class="max-h-full w-auto max-sm:w-dvw max-sm:h-auto"
-    style={"height: " + height / 1.5 + "px;"}
+    style={"height: " + Number(height) / 1.5 + "px;"}
     width={width}
     height={height}
+    attr-layer-format={layerFormat}
     attr-src={pagesSrc}
     attr-src-cleaned={baseCleanedSrc}
     attr-nbr-of-pages={numberOfPages}
@@ -78,16 +91,31 @@ const dummyArray = Array.from({ length: jsonSrc.length });
   const canvas = document.getElementById("canvas-reader") as HTMLCanvasElement;
   const counterDiv = document.getElementById("counter");
   const counterDivChildren = counterDiv!.children;
+  
+  const layerFileFormat = canvas.getAttribute("attr-layer-format") as ("svg" | "png");
   const baseSrcs = JSON.parse(canvas.getAttribute("attr-src")!);
   const baseCleanedSrc = canvas.getAttribute("attr-src-cleaned")!;
   const basePatchedSrc = canvas.getAttribute("attr-src-patched")!;
   const numberOfPages = Number(canvas.getAttribute("attr-nbr-of-pages")!);
+  
   const { width, height } = canvas;
   const ctx = canvas.getContext("2d");
   ctx!.imageSmoothingEnabled = false;
   const isDev = document.getElementById("run-mode")!.getAttribute("content") === "true";
 
   let index = 0;
+
+  function createBitmap(blob: Blob, options: ImageBitmapOptions): Promise<ImageBitmap> {
+    //createImageBitmap(it, options);
+    if(layerFileFormat === "png") {
+      return createImageBitmap(blob, options);
+    }
+    const img = new Image();
+    img.src = URL.createObjectURL(blob);
+    return img.decode()
+      .then(() => URL.revokeObjectURL(img.src))
+      .then(() => createImageBitmap(img, options));
+  }
 
   async function drawLayers(
     remoteFmt: string,
@@ -103,12 +131,12 @@ const dummyArray = Array.from({ length: jsonSrc.length });
         fetch(baseCleanedSrc + localFmt, {
         signal: isDev ? AbortSignal.timeout(500) : undefined,
       }).then((it) => it.blob())
-        .then((it) => createImageBitmap(it, options)),
+        .then((it) => createBitmap(it, options)),
       
       fetch(basePatchedSrc + localFmt, {
         signal: isDev ? AbortSignal.timeout(500) : undefined,
       }).then((it) => it.blob())
-        .then((it) => createImageBitmap(it, options)),
+        .then((it) => createBitmap(it, options)),
     ]).then((results) =>
       results
         .filter((it) => it.status === "fulfilled")
@@ -139,7 +167,7 @@ const dummyArray = Array.from({ length: jsonSrc.length });
       fetch(proxyURL + baseSrcs[i]);
     }
     
-    await drawLayers(`${baseSrcs[index]}`, `${index + 1}.png`, {
+    await drawLayers(`${baseSrcs[index]}`, `${index + 1}.${layerFileFormat}`, {
       resizeHeight: height,
       resizeWidth: width,
       resizeQuality: "high",
@@ -150,13 +178,12 @@ const dummyArray = Array.from({ length: jsonSrc.length });
     if (!!!ctx) return;
     if (!!!baseSrcs) return;
     counterDivChildren[1].children[index]!.setAttribute("style", "color: white");
-    const prevIndex = index;
     index = (((index + increment) % numberOfPages) + numberOfPages) % numberOfPages;
     counterDivChildren[1].children[index]!.setAttribute("style", "color: red");
     ctx.clearRect(0, 0, width, height);
 
     console.log(baseSrcs);
-    await drawLayers(`${baseSrcs[index]}`, `${index + 1}.png`, {
+    await drawLayers(`${baseSrcs[index]}`, `${index + 1}.${layerFileFormat}`, {
       resizeHeight: height,
       resizeWidth: width,
       resizeQuality: "high",

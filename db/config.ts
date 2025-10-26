@@ -9,6 +9,7 @@ const Chapter = defineTable({
     pagesNumber: column.number(),
     pagesURLs: column.json(), // an array of URLs
     mangaId: column.number({ references: () => Manga.columns.id }),
+    usesSVGs: column.boolean({ default: false })
   },
   indexes: [
     { on: ["id", "mangaId"], unique: true }, //idk if it's always unique or not

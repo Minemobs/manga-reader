@@ -20,7 +20,7 @@ const firstChapter = await db.select().from(Chapter).where(and(eq(Chapter.id, fi
     <h2 class="text-2xl text-center">{title}</h2>
     <div class="grid">
         {
-            firstChapter !== undefined && <Reader baseSrc={firstChapter.sourceURL} baseCleanedSrc={`/chapter-clean/${id}/0/`} basePatchedSrc={`/chapter-patch/${id}/0/`} numberOfPages="39" width="850" height="1200"></Reader>
+            firstChapter !== undefined && <Reader layerFormat={firstChapter.usesSVGs ? "svg" : "png"} baseSrc={firstChapter.sourceURL} baseCleanedSrc={`/chapter-clean/${id}/0/`} basePatchedSrc={`/chapter-patch/${id}/0/`} numberOfPages="39" width="850" height="1200"></Reader>
         }
     </div>
 </DefaultLayout>
